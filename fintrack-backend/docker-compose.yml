@@ -1,0 +1,30 @@
+version : '3.8'
+services:
+  postgres-db:
+    image: postgres:15
+    container_name: fintrack-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: fintrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fintrack-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@fintrack.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"  # Access pgAdmin at localhost:5050
+    depends_on:
+      - postgres-db
+
+volumes:
+  pgdata:
+
+
