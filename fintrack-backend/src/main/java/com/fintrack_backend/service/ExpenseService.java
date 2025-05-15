@@ -1,7 +1,9 @@
 package com.fintrack_backend.service;
 
+import com.fintrack_backend.dto.ExpenseFilterRequestDTO;
 import com.fintrack_backend.dto.ExpenseMapper;
 import com.fintrack_backend.dto.ExpenseRequestDTO;
+import com.fintrack_backend.dto.ExpenseResponseDTO;
 import com.fintrack_backend.exception.ResourceNotFoundException;
 import com.fintrack_backend.model.Category;
 import com.fintrack_backend.model.Expense;
@@ -10,10 +12,16 @@ import com.fintrack_backend.repository.CategoryRepository;
 import com.fintrack_backend.repository.ExpenseRepository;
 import com.fintrack_backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -63,5 +71,21 @@ public class ExpenseService {
         }
         expenseRepository.delete(expense);
         return expense;
+    }
+
+    public Page<ExpenseResponseDTO> expensesByMonth(String email, ExpenseFilterRequestDTO dto) {
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getPageSize(), Sort.by("date").descending());
+
+        Page<Expense> expenses = expenseRepository.findByFilters(
+                email,
+                dto.getCategoryName(),
+                dto.getMonth(),
+                dto.getYear(),
+                pageable
+        );
+        return expenses.map(ExpenseMapper::toDto);
+
+
+
     }
 }

@@ -3,7 +3,9 @@ package com.fintrack_backend.controller;
 import com.fintrack_backend.dto.*;
 import com.fintrack_backend.model.Expense;
 import com.fintrack_backend.service.ExpenseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/expense")
@@ -49,6 +53,29 @@ public class ExpenseController {
         Expense deleteExpense=expenseService.deleteExpense(id,userDetails.getUsername());
         return ResponseEntity.ok().body("Successfully deleted expense");
     }
+
+    @PostMapping("/filterByMonth")
+    public ResponseEntity<?> expensesByMonth(@RequestBody @Valid ExpenseFilterRequestDTO dto,
+                                             @AuthenticationPrincipal UserDetails userDetails)
+    {
+        String email=userDetails.getUsername();
+        Page<ExpenseResponseDTO> results=expenseService.expensesByMonth(email,dto);
+        if(results.isEmpty())
+        {
+            return ResponseEntity.ok(Map.of(
+                    "message","You havent logged any expenses during this period.",
+                    "data",List.of()
+        ));
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", results.getContent());
+        response.put("currentPage", results.getNumber());
+        response.put("totalItems", results.getTotalElements());
+        response.put("totalPages", results.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

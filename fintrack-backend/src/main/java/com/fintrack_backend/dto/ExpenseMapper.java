@@ -23,7 +23,6 @@ public class ExpenseMapper {
         dto.setAmount(expense.getAmount());
         dto.setDate(expense.getDate());
         dto.setType(expense.getType());
-        dto.setCategoryId(expense.getCategory().getCategoryId());
         dto.setCategoryName(expense.getCategory().getCategoryName());
         return dto;
 
